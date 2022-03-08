@@ -145,16 +145,12 @@ $('#searchBar1').keyup(function(){
                 console.log(data);
                 $.each(data,function(key,item) {
                     console.log("/product-detail/"+item.id);
-                    // $('#table-body').append('<a href="/product-detail/'+item.id+'" class=btn>\
-                    //         <tr>\
-                    //         <td><img class=photo-resize src= "http://127.0.0.1:8000/media/' + item.product_image + '"></td>\
-                    //         <td>'+item.title+'</td>\
-                    //     </tr></a>'
-                    // )
-                    $('#table-body').append('<tr class=table-row data-href="/product-detail/'+item.id+'">\
-                    <td><img class=photo-resize src= "http://127.0.0.1:8000/media/' + item.product_image + '"></td>\
-                    //         <td>'+item.title+'</td>\
-                    </tr>')
+                    $('#table-body').append('<a href="/product-detail/'+item.id+'" class=btn>\
+                            <tr>\
+                            <td><img class=photo-resize src= "http://127.0.0.1:8000/media/' + item.product_image + '"></td>\
+                            <td>'+item.title+'</td>\
+                        </tr></a><br>'
+                    )
                 });
                 $(".photo-resize").width(40).height(70);
             },
@@ -171,10 +167,4 @@ $('#searchBar1').keyup(function(){
 $('#modal-close').click(function(){
     $('#searchBar1').val("");
     $('.modal').hide();
-});
-
-$(document).ready(function($) {
-    $(".table-row").click(function() {
-        window.document.location = $(this).data("href");
-    });
 });
