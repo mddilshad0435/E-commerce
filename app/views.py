@@ -1,11 +1,12 @@
 from email import message
 from email.policy import default
 import random
-from django import forms, views
+from django import dispatch, forms, views
 from django.conf.urls.static import static
 from django.contrib.auth import models,authenticate,get_user_model,login
 from django.shortcuts import render, redirect
 from django.views import View
+
 from .models import Product,Customer,Cart,OrderPlaced,Profile
 from .forms import CustomerRegistrationForm, LoginForm, ProfileViewForm
 from django.contrib import messages
@@ -13,9 +14,15 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.conf import settings
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
 
 import os
 from twilio.rest import Client
+
+CACHE_TTL = getattr(settings,'CACHE_TTL',DEFAULT_TIMEOUT)
 
 User = get_user_model()
 
@@ -34,8 +41,9 @@ def sendotp(mobile,otp):
     print("haha",message.sid,message.body)
 
 
-
+@method_decorator(cache_page(CACHE_TTL),name='dispatch')
 class ProductView(View):
+
     def get(self,request):
         topwear = Product.objects.filter(category='UW')
         bottomwear = Product.objects.filter(category='BW')
@@ -173,7 +181,7 @@ def orders(request):
 def mobile(request, data=None):
     if data == None:
         mobiles = Product.objects.filter(category='M')
-    elif data == 'REAME' or data == 'POCO' or data == 'SAMSUNG':
+    elif data == 'REALME' or data == 'POCO' or data == 'SAMSUNG':
         mobiles = Product.objects.filter(category='M').filter(brand=data)
     elif data == 'below':
         mobiles = Product.objects.filter(category='M').filter(discounted_price__lt=15000)
@@ -307,12 +315,17 @@ class CustomerRegistrationView(View):
 def SearchItem(request):
     if request.method == "POST":
         prod = request.POST.get('name')
-        print("prod : ",prod)
-        details = Product.objects.filter(title__icontains=prod) | Product.objects.filter(
-            brand__icontains=prod)
+        if cache.get(prod):
+            print("DATA COMING FROM CACHE")
+            data = cache.get(prod)
+        else:
+            
+            print("DATA COMING FROM DB")
+            details = Product.objects.filter(title__icontains=prod) | Product.objects.filter(
+                brand__icontains=prod)
 
-        data = details.values()
-        print("details: ",details)
+            data = details.values()
+            cache.set(prod,data)
         
 
         return JsonResponse(list(data),safe=False)
