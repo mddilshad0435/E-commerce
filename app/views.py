@@ -41,7 +41,7 @@ def sendotp(mobile,otp):
     print("haha",message.sid,message.body)
 
 
-@method_decorator(cache_page(CACHE_TTL),name='dispatch')
+#@method_decorator(cache_page(CACHE_TTL),name='dispatch')
 class ProductView(View):
 
     def get(self,request):

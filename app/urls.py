@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.messages.api import success
 from django.urls import path,include
-from django.conf.urls import url
+# from django.conf.urls import url
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.conf.urls.static import static
